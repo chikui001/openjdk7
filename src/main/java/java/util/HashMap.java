@@ -129,7 +129,7 @@ public class HashMap<K,V>
 {
 
     /**
-     * The default initial capacity - MUST be a power of two.
+     * 默认的初始容量(必须是2的幂级数)
      */
     static final int DEFAULT_INITIAL_CAPACITY = 16;
 
@@ -141,12 +141,13 @@ public class HashMap<K,V>
     static final int MAXIMUM_CAPACITY = 1 << 30;
 
     /**
-     * The load factor used when none specified in constructor.
+     * 默认的加载因子
      */
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
      * Entry类型的数组, 称为哈希表或者哈希桶, 长度必须是2的幂级数
+     * 其中的每个元素指向一个单向链表, 链表中的每个节点表示一个键值对
      */
     transient Entry[] table;
 
@@ -156,13 +157,15 @@ public class HashMap<K,V>
     transient int size;
 
     /**
-     * The next size value at which to resize (capacity * load factor).
+     * 阈值: 当键值对个数size大于等于threshold时, 考虑扩展
+     * 默认情况下 threshold = table.length * loadFactor
+     * (table.length就是整个整个哈希表的容量Capacity)
      * @serial
      */
     int threshold;
 
     /**
-     * The load factor for the hash table.
+     * 加载因子
      *
      * @serial
      */
@@ -219,8 +222,7 @@ public class HashMap<K,V>
     }
 
     /**
-     * Constructs an empty <tt>HashMap</tt> with the default initial capacity
-     * (16) and the default load factor (0.75).
+     * 参数为空的构造器, 使用默认的容量(16)和加载因子(0.75f)
      */
     public HashMap() {
         this.loadFactor = DEFAULT_LOAD_FACTOR;
