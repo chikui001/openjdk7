@@ -24,7 +24,9 @@
  */
 
 package java.util;
-import java.io.*;
+
+import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Hash table based implementation of the <tt>Map</tt> interface.  This
@@ -144,12 +146,12 @@ public class HashMap<K,V>
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
-     * The table, resized as necessary. Length MUST Always be a power of two.
+     * Entry类型的数组, 称为哈希表或者哈希桶, 长度必须是2的幂级数
      */
     transient Entry[] table;
 
     /**
-     * The number of key-value mappings contained in this map.
+     * 实际键值对的数量
      */
     transient int size;
 
