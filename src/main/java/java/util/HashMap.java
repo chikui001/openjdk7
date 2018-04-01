@@ -493,7 +493,7 @@ public class HashMap<K,V>
     }
 
     /**
-     * Transfers all entries from current table to newTable.
+     * 复制所有的Entry从旧的table到新的table
      */
     void transfer(Entry[] newTable) {
         Entry[] src = table;
