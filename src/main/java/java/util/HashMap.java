@@ -211,8 +211,7 @@ public class HashMap<K,V>
     }
 
     /**
-     * Constructs an empty <tt>HashMap</tt> with the specified initial
-     * capacity and the default load factor (0.75).
+     * 初始容量为initialCapacity的构造器(加载因子为默认的0.75)
      *
      * @param  initialCapacity the initial capacity.
      * @throws IllegalArgumentException if the initial capacity is negative.
