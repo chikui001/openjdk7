@@ -263,6 +263,8 @@ public class HashMap<K,V>
      * because HashMap uses power-of-two length hash tables, that
      * otherwise encounter collisions for hashCodes that do not differ
      * in lower bits. Note: Null keys always map to hash 0, thus index 0.
+     *
+     * 获取Hash值
      */
     static int hash(int h) {
         // This function ensures that hashCodes that differ only by
@@ -273,14 +275,14 @@ public class HashMap<K,V>
     }
 
     /**
-     * Returns index for hash code h.
+     * 获取Hash值h在哈希表中的索引位置
      */
     static int indexFor(int h, int length) {
         return h & (length-1);
     }
 
     /**
-     * Returns the number of key-value mappings in this map.
+     * 返回键值对的个数
      *
      * @return the number of key-value mappings in this map
      */
