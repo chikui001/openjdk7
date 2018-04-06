@@ -115,10 +115,11 @@ public class TreeMap<K,V>
      */
     private final Comparator<? super K> comparator;
 
+    // 树的根节点
     private transient Entry<K,V> root = null;
 
     /**
-     * The number of entries in the tree
+     * 整个树的节点个数
      */
     private transient int size = 0;
 
@@ -337,6 +338,7 @@ public class TreeMap<K,V>
     final Entry<K,V> getEntry(Object key) {
         // Offload comparator-based version for sake of performance
         if (comparator != null)
+            // 如果设置了comparator
             return getEntryUsingComparator(key);
         if (key == null)
             throw new NullPointerException();
@@ -511,6 +513,8 @@ public class TreeMap<K,V>
      * Associates the specified value with the specified key in this map.
      * If the map previously contained a mapping for the key, the old
      * value is replaced.
+     * 实现思路: 循环比较找到父节点, 并插入作为其左孩子或者右孩子, 然后用红黑树的
+     * 调整保持树的大致平衡
      *
      * @param key key with which the specified value is to be associated
      * @param value value to be associated with the specified key
@@ -527,31 +531,40 @@ public class TreeMap<K,V>
      */
     public V put(K key, V value) {
         Entry<K,V> t = root;
+        // 如果是第一次添加, root为null, 新建一个节点
         if (t == null) {
+            // 检查key的类型和null, 如果类型不匹配或者为null, 那么compare()方法就会报错
             compare(key, key); // type (and possibly null) check
 
+            // 根节点
             root = new Entry<>(key, value, null);
             size = 1;
             modCount++;
             return null;
         }
+        // 如果不是第一次添加
         int cmp;
+        // parent用于记录插入节点的存放的父节点
         Entry<K,V> parent;
         // split comparator and comparable paths
         Comparator<? super K> cpr = comparator;
         if (cpr != null) {
+            // 设置了comparator
             do {
                 parent = t;
                 cmp = cpr.compare(key, t.key);
                 if (cmp < 0)
+                    // 如果当前节点的key<当前节点的key, 则到当前的节点的左子树中去找
                     t = t.left;
                 else if (cmp > 0)
+                    // 如果当前节点的key>当前节点的key, 则到当前的节点的右子树中去找
                     t = t.right;
                 else
+                    // key = t.key, 此时表示已经有了这个键, 直接设置值
                     return t.setValue(value);
             } while (t != null);
-        }
-        else {
+        } else {
+            // 没有设置了comparator
             if (key == null)
                 throw new NullPointerException();
             Comparable<? super K> k = (Comparable<? super K>) key;
@@ -566,11 +579,13 @@ public class TreeMap<K,V>
                     return t.setValue(value);
             } while (t != null);
         }
+        // 新建一个节点e
         Entry<K,V> e = new Entry<>(key, value, parent);
         if (cmp < 0)
             parent.left = e;
         else
             parent.right = e;
+        // 调整树的结构, 使之符合红黑树的约束, 保持大致平衡
         fixAfterInsertion(e);
         size++;
         modCount++;
@@ -1889,9 +1904,13 @@ public class TreeMap<K,V>
     static final class Entry<K,V> implements Map.Entry<K,V> {
         K key;
         V value;
+        // 左孩子, 对于叶子节点, 孩子节点都为null
         Entry<K,V> left = null;
+        // 右孩子
         Entry<K,V> right = null;
+        // 父节点, 对于根节点父节点为null
         Entry<K,V> parent;
+        //  TreeMap使用红黑树实现, 非黑即红
         boolean color = BLACK;
 
         /**
@@ -1955,8 +1974,7 @@ public class TreeMap<K,V>
     }
 
     /**
-     * Returns the first Entry in the TreeMap (according to the TreeMap's
-     * key-sort function).  Returns null if the TreeMap is empty.
+     * 根据TreeMap的排序方法, 返回TreeMap的第一个节点
      */
     final Entry<K,V> getFirstEntry() {
         Entry<K,V> p = root;
@@ -1967,8 +1985,7 @@ public class TreeMap<K,V>
     }
 
     /**
-     * Returns the last Entry in the TreeMap (according to the TreeMap's
-     * key-sort function).  Returns null if the TreeMap is empty.
+     * 根据TreeMap的排序方法, 返回TreeMap的最后一个节点
      */
     final Entry<K,V> getLastEntry() {
         Entry<K,V> p = root;
@@ -1979,7 +1996,7 @@ public class TreeMap<K,V>
     }
 
     /**
-     * Returns the successor of the specified Entry, or null if no such.
+     * 返回给定节点的后继节点
      */
     static <K,V> TreeMap.Entry<K,V> successor(Entry<K,V> t) {
         if (t == null)
@@ -2001,7 +2018,7 @@ public class TreeMap<K,V>
     }
 
     /**
-     * Returns the predecessor of the specified Entry, or null if no such.
+     * 返回给定节点的前驱节点
      */
     static <K,V> Entry<K,V> predecessor(Entry<K,V> t) {
         if (t == null)
@@ -2140,25 +2157,33 @@ public class TreeMap<K,V>
 
         // If strictly internal, copy successor's element to p and then make p
         // point to successor.
+        // p有两个孩子的时候
         if (p.left != null && p.right != null) {
+            // s为后继节点
             Entry<K,V> s = successor(p);
+            //
             p.key = s.key;
             p.value = s.value;
             p = s;
-        } // p has 2 children
+        }
 
         // Start fixup at replacement node, if it exists.
         Entry<K,V> replacement = (p.left != null ? p.left : p.right);
 
         if (replacement != null) {
+            // 只有一个孩子节点
             // Link replacement to parent
             replacement.parent = p.parent;
-            if (p.parent == null)
+            if (p.parent == null) {
                 root = replacement;
-            else if (p == p.parent.left)
-                p.parent.left  = replacement;
-            else
-                p.parent.right = replacement;
+            } else {
+                if (p == p.parent.left)
+                    // p节点在其父节点的左边
+                    p.parent.left  = replacement;
+                else
+                    // p节点在其父节点的右边
+                    p.parent.right = replacement;
+            }
 
             // Null out links so they are OK to use by fixAfterDeletion.
             p.left = p.right = p.parent = null;
@@ -2169,6 +2194,7 @@ public class TreeMap<K,V>
         } else if (p.parent == null) { // return if we are the only node.
             root = null;
         } else { //  No children. Use self as phantom replacement and unlink.
+            // 叶子节点的
             if (p.color == BLACK)
                 fixAfterDeletion(p);
 

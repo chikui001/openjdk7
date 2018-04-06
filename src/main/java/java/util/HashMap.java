@@ -571,10 +571,13 @@ public class HashMap<K,V>
     final Entry<K,V> removeEntryForKey(Object key) {
         int hash = (key == null) ? 0 : hash(key.hashCode());
         int i = indexFor(hash, table.length);
+        // 直接将链表第一个赋值给prev, 实际上prev指的是前一个Entry
         Entry<K,V> prev = table[i];
+        // 将prev赋值给e, e指的是当前的Entry, 最开始的时候prev和e都是第一个
         Entry<K,V> e = prev;
 
         while (e != null) {
+            // e不为空时
             Entry<K,V> next = e.next;
             Object k;
             if (e.hash == hash &&
@@ -582,12 +585,15 @@ public class HashMap<K,V>
                 modCount++;
                 size--;
                 if (prev == e)
+                    // 链表的第一个就是需要找的Entry
                     table[i] = next;
                 else
+                    // 链表后面的才是
                     prev.next = next;
                 e.recordRemoval(this);
                 return e;
             }
+            // 如果当前的Entry不是需要找的, 开始往链表的后面找
             prev = e;
             e = next;
         }
@@ -698,7 +704,9 @@ public class HashMap<K,V>
     static class Entry<K,V> implements Map.Entry<K,V> {
         final K key;
         V value;
+        // 下一个
         Entry<K,V> next;
+        // hash值
         final int hash;
 
         /**
