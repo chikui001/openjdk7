@@ -82,6 +82,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
 
     private static final long serialVersionUID = -7720805057305804111L;
 
+    // 默认的初始值
     private static final int DEFAULT_INITIAL_CAPACITY = 11;
 
     /**
@@ -91,11 +92,12 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * natural ordering, if comparator is null: For each node n in the
      * heap and each descendant d of n, n <= d.  The element with the
      * lowest value is in queue[0], assuming the queue is nonempty.
+     * 实际存储元素的数组
      */
     private transient Object[] queue;
 
     /**
-     * The number of elements in the priority queue.
+     * 当前元素的个数
      */
     private int size = 0;
 
@@ -307,22 +309,22 @@ public class PriorityQueue<E> extends AbstractQueue<E>
     }
 
     /**
-     * Inserts the specified element into this priority queue.
+     * 添加元素
      *
      * @return {@code true} (as specified by {@link Queue#offer})
      * @throws ClassCastException if the specified element cannot be
      *         compared with elements currently in this priority queue
      *         according to the priority queue's ordering
-     * @throws NullPointerException if the specified element is null
+     * @throws NullPointerException 如果元素为空
      */
     public boolean offer(E e) {
         if (e == null)
             throw new NullPointerException();
         modCount++;
         int i = size;
-        if (i >= queue.length)
+        if (i >= queue.length) // 确保数组的长度是足够的, 如果不够, 调用grow方法动态的扩展
             grow(i + 1);
-        size = i + 1;
+        size = i + 1; //增加长度
         if (i == 0)
             queue[0] = e;
         else
@@ -689,16 +691,16 @@ public class PriorityQueue<E> extends AbstractQueue<E>
 
     private void siftDownUsingComparator(int k, E x) {
         int half = size >>> 1;
-        while (k < half) {
-            int child = (k << 1) + 1;
-            Object c = queue[child];
+        while (k < half) { // 编号为k的节点有孩子节点
+            int child = (k << 1) + 1; // child表示较小孩子节点的编码, 初始为左孩子
+            Object c = queue[child]; // c表示较小的孩子节点
             int right = child + 1;
             if (right < size &&
                 comparator.compare((E) c, (E) queue[right]) > 0)
                 c = queue[child = right];
             if (comparator.compare(x, (E) c) <= 0)
                 break;
-            queue[k] = c;
+            queue[k] = c; // 将较小孩子节点的元素与k节点交换
             k = child;
         }
         queue[k] = x;
